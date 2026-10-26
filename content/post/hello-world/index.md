@@ -36,7 +36,7 @@ tags:
 
 想换站名和副标题,改 `hugo.yaml` 里的 `title` 和 `params.sidebar`。
 
-想换成自己的头像,替换 `static/img/avatar.png`。
+想换成自己的头像,替换 `assets/img/avatar.png`。
 
 想写新文章:
 

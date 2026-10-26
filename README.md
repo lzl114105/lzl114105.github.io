@@ -16,7 +16,7 @@ title: "半山"                             # 站名
 - `params.sidebar.subtitle` —— 侧边栏那句副标题
 - `menu.social` 里的 `url` —— 换成你的 GitHub 主页
 
-头像换成 `static/img/avatar.png`(建议 400×400 的正方形)。
+头像换成 `assets/img/avatar.png`(建议 400×400 的正方形)。
 关于页改 `content/page/about/index.md`。
 
 ## 日常三件事
@@ -55,7 +55,7 @@ content/
   page/about/index.md     关于页
   page/archives/index.md  归档页
   page/search/index.md    搜索页
-static/img/avatar.png     头像
+assets/img/avatar.png      头像(必须放 assets/,主题只从这个目录取图)
 themes/hugo-theme-stack/  主题(直接放在仓库里,不依赖外网)
 .github/workflows/hugo.yaml  自动部署流水线
 ```
