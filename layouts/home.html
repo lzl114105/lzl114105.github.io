@@ -1,0 +1,34 @@
+{{ define "main" }}
+    {{- $paginator := partial "helper/paginator.html" . -}}
+    {{- $posts := where site.RegularPages "Section" "post" -}}
+
+    <section class="home-hero">
+        <h1 class="home-title">{{ site.Title }}</h1>
+        {{ with site.Params.sidebar.subtitle }}
+            <p class="home-motto">{{ . }}</p>
+        {{ end }}
+        <p class="home-meta">
+            {{ len $posts }} 篇
+            {{- with index ($posts.ByDate.Reverse | first 1) 0 }}
+                · 最近更新 {{ .Date.Format "2006.01.02" }}
+            {{- end }}
+        </p>
+    </section>
+
+    <section class="home-index">
+        {{ range $paginator.Pages }}
+            <a class="index-row" href="{{ .RelPermalink }}">
+                <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006.01.02" }}</time>
+                <div>
+                    <h2>{{ .Title }}</h2>
+                    {{ with (.Description | default (.Summary | plainify | truncate 72 "")) }}
+                        <p>{{ . }}</p>
+                    {{ end }}
+                </div>
+            </a>
+        {{ end }}
+    </section>
+
+    {{- partial "pagination.html" . -}}
+    {{- partial "footer/footer" . -}}
+{{ end }}
