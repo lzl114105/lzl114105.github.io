@@ -1,7 +1,7 @@
 # ═══════════════════════════════════════════════════════
 # 站点基础信息 —— 换博客时改这几行就够
 # ═══════════════════════════════════════════════════════
-baseURL: "https://YOURNAME.github.io/"   # 换成你的用户名,仓库名不是 YOURNAME.github.io 时还要加仓库名
+baseURL: "https://lzl114105.github.io/"   # 仓库叫别的名字时,这里要写成 https://lzl114105.github.io/仓库名/
 title: "半山"
 theme: "hugo-theme-stack"
 
@@ -115,7 +115,7 @@ menu:
   social:
     - identifier: github
       name: GitHub
-      url: "https://github.com/YOURNAME"
+      url: "https://github.com/lzl114105"
       params:
         icon: brand-github
         newTab: true
