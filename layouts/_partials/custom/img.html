@@ -1,0 +1,17 @@
+{{- /* 统一取图助手
+       入参：path（相对 assets/ 的路径，或文章目录内的文件名）、page（可选，用于取页面资源）
+       返回：Hugo 图片 resource；取不到时返回空，模板里用 with / if 兜住即可。
+
+       这样所有图片入口都集中在 hugo.yaml 的 params.images 里，
+       换图 = 改一行配置，不用碰模板。 */ -}}
+{{- $path := .path | default "" -}}
+{{- $page := .page -}}
+{{- $res := false -}}
+{{- with $path -}}
+    {{- $clean := strings.TrimPrefix "/" . -}}
+    {{- $res = resources.Get $clean -}}
+    {{- if and (not $res) $page -}}
+        {{- $res = $page.Resources.GetMatch $clean -}}
+    {{- end -}}
+{{- end -}}
+{{- return $res -}}

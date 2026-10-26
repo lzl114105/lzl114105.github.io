@@ -26,16 +26,36 @@ permalinks:
 params:
   mainSections: ["post"]
   rssFullContent: true
+
+  # ═══════════════════════════════════════════════════════
+  # 图片总入口 —— 换图只改这一段，不用碰模板
+  # 路径都相对 assets/ 目录；Hugo 构建时自动转 WebP、按需切尺寸
+  # 留空 "" 就退回内置渐变占位，页面不会出现破图
+  # ═══════════════════════════════════════════════════════
+  images:
+    # ① 首页门头横幅：建议 1600×640 以上的横图（风景、插画都行）
+    hero: "img/hero.png"
+
+    # ② 分类卡片封面：键名必须和分类名一模一样
+    #    没有的分类会自动用渐变色块，加了图就自动换成图
+    categories:
+      技术: "img/cat-tech.png"
+      随笔: "img/cat-life.png"
+      备忘: "img/cat-note.png"
+
+    # ③ 文章没在 front matter 里写 image 时的兜底封面（留空则不出图）
+    postFallback: ""
+
+  # ④ 头像与站点图标（主题从这两个键读，所以单独放）
+  sidebar:
+    emoji: "✍️"
+    subtitle: "写下想到的,留住想留的"
+    avatar: "img/avatar.png"
   favicon: "img/avatar.png"
 
   footer:
     since: 2026
     customText: ""
-
-  sidebar:
-    emoji: "✍️"
-    subtitle: "写下想到的,留住想留的"
-    avatar: "img/avatar.png"
 
   article:
     headingAnchor: false

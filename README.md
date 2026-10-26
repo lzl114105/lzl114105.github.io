@@ -19,6 +19,36 @@ title: "半山"                             # 站名
 头像换成 `assets/img/avatar.png`(建议 400×400 的正方形)。
 关于页改 `content/page/about/index.md`。
 
+## 图片:全部在配置里
+
+所有图片入口都集中在 `hugo.yaml` 的 `params.images` 一段,换图只改一行,不用碰模板:
+
+```yaml
+params:
+  images:
+    hero: "img/hero.png"          # ① 首页门头横幅,建议 1600×640 以上的横图
+    categories:                   # ② 分类卡片封面,键名与分类名一字不差
+      技术: "img/cat-tech.png"
+      随笔: "img/cat-life.png"
+      备忘: "img/cat-note.png"
+    postFallback: ""              # ③ 文章没封面时用的兜底图,留空就不出图
+  sidebar:
+    avatar: "img/avatar.png"      # ④ 头像,正方形
+  favicon: "img/avatar.png"       # ⑤ 站点图标(一般是同一张)
+```
+
+路径都相对 `assets/img/`,把图丢进这个目录就行。构建时会自动转 WebP 并按需要切尺寸,所以原图多大都能用(单张建议不超过 2MB)。
+
+**留空就等于不用图**,页面会自己换成渐变占位:门头变成暮色天空加山峦,分类卡片变成彩色色块,不会出现破图。所以你可以先把图删掉,以后再慢慢补。
+
+文章的封面不在这配,写在文章自己的 front matter 里:
+
+```yaml
+image: "cover.png"     # 图片放在文章同一目录
+```
+
+不写 `image` 就用 `postFallback`;两个都没有,首页那张卡片就只显示文字。
+
 ## 日常三件事
 
 **写新文章**
@@ -49,16 +79,33 @@ git add -A && git commit -m "新文章" && git push
 ## 目录结构
 
 ```
-hugo.yaml                 全站配置,只改这一个文件就够
+hugo.yaml                 全站配置,图片入口也在里面(params.images)
 content/
   post/文章名/index.md     文章。图片丢进同目录,用 ![x](photo.jpg) 引用
   page/about/index.md     关于页
   page/archives/index.md  归档页
   page/search/index.md    搜索页
-assets/img/avatar.png      头像(必须放 assets/,主题只从这个目录取图)
+assets/
+  img/hero.png            首页门头横幅
+  img/cat-*.png           分类卡片封面
+  img/avatar.png          头像 + 站点图标
+  css/custom.css          皮肤:配色、字体、卡片、门头样式(顶部是色板变量)
+  js/custom.js            阅读进度条、列表入场动画
+layouts/
+  home.html               首页结构(门头 / 文章流 / 分类书架)
+  _partials/custom/img.html   统一取图助手(配置里的路径 → Hugo 图片资源)
 themes/hugo-theme-stack/  主题(直接放在仓库里,不依赖外网)
 .github/workflows/hugo.yaml  自动部署流水线
 ```
+
+## 想改样子改哪里
+
+| 想改的 | 改哪 |
+|---|---|
+| 主色、强调色、深色模式配色 | `assets/css/custom.css` 顶部 `:root` 和 `[data-scheme="dark"]` 两个色块 |
+| 标题字体 / 正文字体 | 同文件 `--font-serif` / `--font-body` |
+| 首页门头文案、文章流、分类书架的结构 | `layouts/home.html` |
+| 卡片圆角、阴影、间距 | `custom.css` 里的 `--radius` / `--shadow` / `--section-separation` |
 
 ## 部署到 GitHub Pages 的完整步骤
 

@@ -1,34 +1,133 @@
 {{ define "main" }}
     {{- $paginator := partial "helper/paginator.html" . -}}
-    {{- $posts := where site.RegularPages "Section" "post" -}}
+    {{- $all := where site.RegularPages "Section" "post" -}}
+    {{- $latest := index ($all.ByDate.Reverse | first 1) 0 -}}
+    {{- $imgcfg := site.Params.images | default (dict) -}}
 
-    <section class="home-hero">
-        <h1 class="home-title">{{ site.Title }}</h1>
-        {{ with site.Params.sidebar.subtitle }}
-            <p class="home-motto">{{ . }}</p>
-        {{ end }}
-        <p class="home-meta">
-            {{ len $posts }} 篇
-            {{- with index ($posts.ByDate.Reverse | first 1) 0 }}
-                · 最近更新 {{ .Date.Format "2006.01.02" }}
-            {{- end }}
-        </p>
+    {{/* ── 门头：插画横幅（图在 params.images.hero，没有就用渐变天空） ── */}}
+    {{- $hero := partial "custom/img.html" (dict "path" $imgcfg.hero) -}}
+    <section class="hero{{ if not $hero }} hero--plain{{ end }}">
+        {{- with $hero -}}
+            {{- $wide := .Fill "1600x640 Center webp" -}}
+            {{- $tall := .Fill "880x760 Center webp" -}}
+            <picture class="hero__pic">
+                <source media="(max-width: 820px)" srcset="{{ $tall.RelPermalink }}">
+                <img class="hero__img" src="{{ $wide.RelPermalink }}" alt=""
+                     width="{{ $wide.Width }}" height="{{ $wide.Height }}"
+                     fetchpriority="high" decoding="async">
+            </picture>
+        {{- else -}}
+            <span class="hero__sky" aria-hidden="true"></span>
+            <span class="hero__hills hero__hills--far" aria-hidden="true"></span>
+            <span class="hero__hills hero__hills--near" aria-hidden="true"></span>
+        {{- end -}}
+
+        <div class="hero__veil"></div>
+
+        <div class="hero__inner">
+            <p class="hero__kicker"><span class="hero__dot"></span>HALF MOUNTAIN</p>
+            <h1 class="hero__title">{{ site.Title }}</h1>
+            {{ with site.Params.sidebar.subtitle }}
+                <p class="hero__motto">{{ . }}</p>
+            {{ end }}
+            <p class="hero__meta">
+                <span>{{ len $all }} 篇文字</span>
+                {{- with $latest }}<span>最近 {{ .Date.Format "2006.01.02" }}</span>{{ end -}}
+                {{- with site.Taxonomies.tags }}<span>{{ len . }} 个标签</span>{{ end -}}
+            </p>
+        </div>
     </section>
 
-    <section class="home-index">
-        {{ range $paginator.Pages }}
-            <a class="index-row" href="{{ .RelPermalink }}">
-                <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006.01.02" }}</time>
-                <div>
-                    <h2>{{ .Title }}</h2>
-                    {{ with (.Description | default (.Summary | plainify | truncate 72 "")) }}
-                        <p>{{ . }}</p>
+    {{/* ── 文章 ─────────────────────────────────────────── */}}
+    <section class="block">
+        <header class="block__head">
+            <h2 class="block__title">最 近</h2>
+            <span class="block__line"></span>
+            <a class="block__more" href="{{ "archives/" | relURL }}">全部文章</a>
+        </header>
+
+        <div class="cards">
+            {{ range $p := $paginator.Pages }}
+                {{- $path := $p.Params.image | default $imgcfg.postFallback -}}
+                {{- $img := partial "custom/img.html" (dict "path" $path "page" $p) -}}
+                <a class="post-card{{ if $img }} post-card--thumb{{ end }}" href="{{ $p.RelPermalink }}">
+                    {{ with $img }}
+                        {{- $thumb := .Fill "420x300 Center webp" -}}
+                        <span class="post-card__thumb">
+                            <img src="{{ $thumb.RelPermalink }}" alt="" loading="lazy" decoding="async"
+                                 width="{{ $thumb.Width }}" height="{{ $thumb.Height }}">
+                        </span>
                     {{ end }}
-                </div>
-            </a>
-        {{ end }}
+
+                    <span class="post-card__body">
+                        <span class="post-card__meta">
+                            <time datetime="{{ $p.Date.Format "2006-01-02" }}">{{ $p.Date.Format "2006.01.02" }}</time>
+                            {{- with $p.GetTerms "categories" -}}
+                                <span class="post-card__cat">{{ (index . 0).LinkTitle }}</span>
+                            {{- end -}}
+                        </span>
+                        <span class="post-card__title">{{ $p.Title }}</span>
+                        {{ with ($p.Description | default ($p.Summary | plainify | truncate 84 "")) }}
+                            <span class="post-card__excerpt">{{ . }}</span>
+                        {{ end }}
+                    </span>
+
+                    <span class="post-card__go" aria-hidden="true">→</span>
+                </a>
+            {{ end }}
+        </div>
+
+        {{- partial "pagination.html" . -}}
     </section>
 
-    {{- partial "pagination.html" . -}}
-    {{- partial "footer/footer" . -}}
+    {{/* ── 分册：分类卡片（图在 params.images.categories，键名即分类名） ── */}}
+    {{- $catcfg := $imgcfg.categories | default (dict) -}}
+    {{- $palette := slice
+        (slice "#6b5a9c" "#e79db0")
+        (slice "#5a7db3" "#a6cfe0")
+        (slice "#a06f8d" "#f0c3a4")
+        (slice "#6b8c79" "#d3ddab")
+        (slice "#87699b" "#b9a6da") -}}
+
+    {{- $cats := slice -}}
+    {{- range $name, $term := site.Taxonomies.categories -}}
+        {{- $cats = $cats | append (dict "name" $name "term" $term) -}}
+    {{- end -}}
+
+    {{- with $cats }}
+        <section class="block">
+            <header class="block__head">
+                <h2 class="block__title">分 册</h2>
+                <span class="block__line"></span>
+            </header>
+
+            <div class="shelves">
+                {{ range $i, $c := . }}
+                    {{- $page := $c.term.Page -}}
+                    {{- $path := index $catcfg $c.name | default $page.Params.image -}}
+                    {{- $cover := partial "custom/img.html" (dict "path" $path "page" $page) -}}
+                    {{- $g := index $palette (mod $i (len $palette)) -}}
+                    <a class="shelf{{ if not $cover }} shelf--plain{{ end }}" href="{{ $page.RelPermalink }}"
+                       {{- if not $cover }} style="--g1:{{ index $g 0 }};--g2:{{ index $g 1 }}"{{ end }}>
+                        {{ with $cover }}
+                            {{- $thumb := .Fill "640x400 Center webp" -}}
+                            <span class="shelf__art">
+                                <img src="{{ $thumb.RelPermalink }}" alt="" loading="lazy" decoding="async"
+                                     width="{{ $thumb.Width }}" height="{{ $thumb.Height }}">
+                            </span>
+                        {{ end }}
+                        <span class="shelf__body">
+                            <span class="shelf__name">{{ $page.Title }}</span>
+                            {{ with $page.Description }}
+                                <span class="shelf__desc">{{ . }}</span>
+                            {{ end }}
+                            <span class="shelf__count">{{ len $c.term.Pages }} 篇</span>
+                        </span>
+                    </a>
+                {{ end }}
+            </div>
+        </section>
+    {{- end }}
+
+    {{- partialCached "footer/footer" . -}}
 {{ end }}

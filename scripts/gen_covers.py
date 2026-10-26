@@ -57,23 +57,19 @@ def make(path, w, h, c1, c2, glow, diag=1.0, grain=2.2, vignette=0.10):
 CW, CH = 800, 500
 
 make(f"{ROOT}/content/categories/技术/cover.png", CW, CH,
-     (52, 62, 72), (108, 122, 134), (0.72, 0.22, 0.8), 0.6)
+     (124, 152, 216), (180, 202, 240), (0.72, 0.22, 0.9), 0.7, grain=1.6)
 
 make(f"{ROOT}/content/categories/随笔/cover.png", CW, CH,
-     (236, 230, 220), (206, 214, 205), (0.30, 0.26, 0.9), 1.0)
+     (238, 158, 178), (250, 210, 200), (0.28, 0.24, 1.0), 1.0, grain=1.6)
 
 make(f"{ROOT}/content/categories/备忘/cover.png", CW, CH,
-     (226, 220, 236), (212, 206, 196), (0.66, 0.74, 0.75), 0.8)
-
-# 头像放 assets/ 而不是 static/:主题的图片 helper 只从 assets/ 取
-make(f"{ROOT}/assets/img/avatar.png", 420, 420,
-     (226, 220, 208), (108, 132, 120), (0.38, 0.32, 1.05), 0.9, grain=2.6)
+     (150, 206, 188), (240, 224, 192), (0.68, 0.74, 0.9), 0.8, grain=1.6)
 
 if "--all" in sys.argv:
     W, H = 1200, 700
     make(f"{ROOT}/content/post/hello-world/cover.png", W, H,
-         (242, 236, 226), (198, 208, 210), (0.24, 0.18, 0.85), 1.0)
+         (250, 214, 198), (214, 198, 236), (0.22, 0.18, 1.0), 1.0, grain=1.6)
     make(f"{ROOT}/content/post/why-hugo/cover.png", W, H,
-         (44, 54, 49), (86, 90, 92), (0.78, 0.24, 0.75), 0.6)
+         (160, 196, 232), (176, 214, 206), (0.76, 0.24, 0.9), 0.7, grain=1.6)
     make(f"{ROOT}/content/post/markdown-guide/cover.png", W, H,
-         (232, 228, 237), (214, 199, 184), (0.34, 0.72, 0.7), 1.0)
+         (208, 192, 236), (244, 190, 204), (0.32, 0.70, 0.85), 1.0, grain=1.6)

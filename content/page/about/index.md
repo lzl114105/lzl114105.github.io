@@ -22,7 +22,7 @@ menu:
 
 ## 怎么联系我
 
-- GitHub:[YOURNAME](https://github.com/YOURNAME)
+- GitHub:[LZL](https://github.com/lzl114105)[](https://github.com/lzl114105)
 - 邮箱:your@email.com
 
 ---
