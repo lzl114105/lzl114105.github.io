@@ -1,0 +1,131 @@
+# ═══════════════════════════════════════════════════════
+# 站点基础信息 —— 换博客时改这几行就够
+# ═══════════════════════════════════════════════════════
+baseURL: "https://YOURNAME.github.io/"   # 换成你的用户名,仓库名不是 YOURNAME.github.io 时还要加仓库名
+title: "半山"
+theme: "hugo-theme-stack"
+
+# 中文站点必须开 hasCJKLanguage,否则 .Summary 会把汉字当英文按空格断句
+locale: "zh-cn"
+defaultContentLanguage: "zh"
+hasCJKLanguage: true
+timeZone: "Asia/Shanghai"
+
+# 首页每页显示几篇
+pagination:
+  pagerSize: 8
+
+# 文章和独立页面的地址格式:/p/文章名/、/关于/
+permalinks:
+  post: "/p/:slug/"
+  page: "/:slug/"
+
+# ═══════════════════════════════════════════════════════
+# 主题外观
+# ═══════════════════════════════════════════════════════
+params:
+  mainSections: ["post"]
+  rssFullContent: true
+  favicon: "img/avatar.png"
+
+  footer:
+    since: 2026
+    customText: ""
+
+  sidebar:
+    emoji: "✍️"
+    subtitle: "写下想到的,留住想留的"
+    avatar: "img/avatar.png"
+
+  article:
+    headingAnchor: false
+    math: false          # 要写数学公式的改成 true
+    toc: true            # 文章右侧目录
+    readingTime: true    # 显示阅读时长
+    license:
+      enabled: true
+      default: "本文采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 协议,转载请注明出处。"
+    list:
+      showTags: true
+
+  # 首页右栏卡片
+  widgets:
+    homepage:
+      - type: search
+      - type: archives
+        params:
+          limit: 5
+      - type: categories
+        params:
+          limit: 10
+      - type: tag-cloud
+        params:
+          limit: 10
+    page:
+      - type: toc
+
+  colorScheme:
+    toggle: true
+    default: "auto"      # auto 跟随系统
+
+  # 评论:先关着。要用时把 enabled 改 true,填 giscus 的 repo 和 repoID
+  comments:
+    enabled: false
+    provider: giscus
+    giscus:
+      repo: ""
+      repoID: ""
+      category: "Announcements"
+      categoryID: ""
+      mapping: "pathname"
+      lang: "zh-CN"
+
+# ═══════════════════════════════════════════════════════
+# Markdown 渲染
+# ═══════════════════════════════════════════════════════
+markup:
+  goldmark:
+    renderer:
+      unsafe: true       # 允许在 md 里直接写 HTML
+    extensions:
+      passthrough:       # 数学公式透传,配合 params.article.math 使用
+        enable: true
+        delimiters:
+          block:
+            - ['\[', '\]']
+            - ['$$', '$$']
+          inline:
+            - ['\(', '\)']
+  tableOfContents:
+    startLevel: 2
+    endLevel: 4
+    ordered: true
+  highlight:
+    codeFences: true
+    guessSyntax: true
+    lineNos: true
+    lineNumbersInTable: true
+    noClasses: false
+    tabWidth: 4
+
+# ═══════════════════════════════════════════════════════
+# 侧边栏社交图标
+# ═══════════════════════════════════════════════════════
+menu:
+  social:
+    - identifier: github
+      name: GitHub
+      url: "https://github.com/YOURNAME"
+      params:
+        icon: brand-github
+        newTab: true
+
+related:
+  includeNewer: true
+  threshold: 60
+  toLower: false
+  indices:
+    - name: tags
+      weight: 100
+    - name: categories
+      weight: 200
