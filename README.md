@@ -174,6 +174,41 @@ params:
 
 删分类:把文章里那行删掉,它自己就消失;`_index.md` 留着不影响,清掉更干净。
 
+## 在手机上写
+
+手机上不跑 Hugo,思路反过来:**你只管改文件,GitHub Actions 替你构建**。手机浏览器登录 github.com,进 `lzl114105/lzl114105.github.io` 仓库,就够用了。
+
+**改一篇**:进 `content/post/文章名/index.md` → 右上铅笔图标 → 改完拉到底 **Commit changes**(直接提交到 `main`)→ 等 Actions 跑完,一分钟内线上生效。
+
+**新写一篇**:仓库页 **Add file → Create new file**,文件名一栏直接输路径,斜杠会自动变成目录:
+
+```
+content/post/my-new-post/index.md
+```
+
+粘贴这段开头,然后写正文:
+
+```yaml
+---
+title: "标题写中文"
+slug: "my-new-post"
+description: "一句话摘要"
+date: 2026-10-30
+categories:
+    - 随笔
+tags:
+draft: false        # 手机上最容易忘的一行
+---
+
+正文从这开始。
+```
+
+**发照片**:文章目录里 **Add file → Upload files**,传完在正文用 `![](photo.jpg)` 引用,文件名对上就行。
+
+**最大的一条纪律:手机提交后,电脑必须先 `git pull` 再干活。** 两边各改各的,后 push 的那个会被拒,新手上手最容易被这个吓到。养成"坐下先 pull,起身已推送"的习惯,冲突就永远不会发生。
+
+嫌网页编辑器糙的话,下一步可以给站里加 Decap CMS(一个 `/admin/` 后台页面,手机浏览器打开就是像样的编辑器,能建文章、传图、发布),需要配一次 GitHub 授权,想做说一声。
+
 ## 目录结构
 
 ```
