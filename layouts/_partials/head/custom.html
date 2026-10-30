@@ -1,3 +1,23 @@
+{{- /* 开场幕布：只有首页、且这个会话还没播过,才给 html 挂 pending 类。
+       必须内联在这里,它要早于第一次绘制执行,否则会先闪一帧白底再变黑。 */ -}}
+{{- if .IsHome -}}
+    {{- with site.Params.intro -}}
+        {{- if .enable -}}
+<meta name="intro-text" content="{{ .text }}">
+<meta name="intro-tagline" content="{{ .tagline }}">
+<script>
+    (function () {
+        try {
+            if (sessionStorage.getItem("bs-intro-played") === "1") return;
+        } catch (e) {}
+        document.documentElement.classList.add("intro-pending");
+    })();
+</script>
+<style>html.intro-pending,html.intro-pending body{background:#0b0912}</style>
+        {{- end -}}
+    {{- end -}}
+{{- end -}}
+
 {{- /* 主标题字体：霞鹜文楷（SIL OFL 1.1，可自由商用）。
        用 media=print 异步载入，绝不阻塞首屏渲染；加载失败自动退回系统楷体。 */ -}}
 <link rel="preconnect" href="https://fontsapi.zeoseven.com" crossorigin>

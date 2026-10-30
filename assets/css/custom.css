@@ -1178,3 +1178,270 @@ body:has(.hero) .sidebar .site-meta {
         font-size: 1.62rem;
     }
 }
+
+/* ==========================================================================
+   开场 —— 一个字浮出，被一道斜光切开，幕布随即向两侧撕走
+   结构由 custom.js 注入，这里只管形态与时间轴。
+   时间轴：0s 字浮出 → 1.2s 切口亮起 → 1.95s 幕布撕开 → 3.85s 整体淡出
+   几何：幕布沿 -11.5° 的斜线劈成上下两片，两片各自 clip-path 留一半，
+   撕开时朝相反方向平移 30%/46%，看起来就是一整块被撕成两扇门。
+   ========================================================================== */
+
+html.intro-pending,
+html.intro-pending body {
+    background: #0b0912;
+}
+
+/* 幕布盖住页面时锁住滚动,免得开场还能往下滑 */
+body.intro-lock {
+    overflow: hidden;
+}
+
+.home-intro {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    color: #fff;
+    pointer-events: none;
+}
+
+/* 两片幕布：inset 超出视口 12%,撕开时才不会露出边缘 */
+.home-intro__panel {
+    position: absolute;
+    inset: -12%;
+    z-index: 1;
+    background:
+        radial-gradient(circle at 50% 50%, rgba(255, 186, 220, 0.1), transparent 22rem),
+        linear-gradient(
+            120deg,
+            rgba(255, 255, 255, 0.05),
+            transparent 34% 66%,
+            rgba(255, 255, 255, 0.03)
+        ),
+        #0b0912;
+}
+
+.home-intro__panel--left {
+    clip-path: polygon(0 0, 100% 0, 100% 27.7%, 0 72.3%);
+}
+
+.home-intro__panel--right {
+    clip-path: polygon(0 72.3%, 100% 27.7%, 100% 100%, 0 100%);
+}
+
+/* 光刃：一条长 150vmax 的细线,顺着斜切方向从中间扫出去 */
+.home-intro__cut {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 4;
+    width: 150vmax;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.16),
+        rgba(255, 214, 232, 0.85) 48% 52%,
+        rgba(255, 255, 255, 0.16),
+        transparent
+    );
+    box-shadow:
+        0 0 2px rgba(255, 255, 255, 0.5),
+        0 0 8px rgba(224, 123, 151, 0.25);
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-11.5deg) scaleX(0);
+}
+
+.home-intro__inner {
+    position: relative;
+    z-index: 5;
+    display: grid;
+    gap: 1.6rem;
+    justify-items: center;
+    padding: 0 4vw;
+}
+
+.home-intro__title {
+    position: relative;
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: clamp(2.6rem, 8vw, 7.6rem);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    text-align: center;
+    text-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.5),
+        0 0 28px rgba(255, 170, 205, 0.16);
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+}
+
+/* 字身上那道切口:长度按 em 算,换长标题也不会缩成一个小点 */
+.home-intro__title::after {
+    position: absolute;
+    top: 52%;
+    left: 50%;
+    width: 1.55em;
+    height: 1px;
+    border-radius: 999px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.95) 24% 76%,
+        transparent
+    );
+    box-shadow:
+        0 0 2px rgba(255, 255, 255, 0.55),
+        0 0 6px rgba(224, 123, 151, 0.28);
+    content: "";
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-11.5deg) scaleX(0.05);
+}
+
+.home-intro__tagline {
+    margin: 0;
+    font-size: 1.4rem;
+    letter-spacing: 0.42em;
+    text-indent: 0.42em;
+    color: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.home-intro.is-running .home-intro__title {
+    animation:
+        introTitle 1.5s ease-out forwards,
+        introTitleOut 0.9s ease 2s forwards;
+}
+
+.home-intro.is-running .home-intro__title::after {
+    animation: introCrack 1.25s cubic-bezier(0.16, 1, 0.3, 1) 1.2s forwards;
+}
+
+.home-intro.is-running .home-intro__tagline {
+    animation: introTagline 1.2s ease-out 0.6s forwards;
+}
+
+.home-intro.is-running .home-intro__cut {
+    animation: introCut 1.15s cubic-bezier(0.16, 1, 0.3, 1) 1.45s forwards;
+}
+
+.home-intro.is-running .home-intro__panel--left {
+    animation: introLeft 1.9s cubic-bezier(0.76, 0, 0.24, 1) 1.95s forwards;
+}
+
+.home-intro.is-running .home-intro__panel--right {
+    animation: introRight 1.9s cubic-bezier(0.76, 0, 0.24, 1) 1.95s forwards;
+}
+
+.home-intro.is-running {
+    animation: introFade 0.45s ease 3.6s forwards;
+}
+
+@keyframes introTitle {
+    0% {
+        opacity: 0;
+        transform: translateY(18px) scale(0.96);
+        filter: blur(8px);
+    }
+    42% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1.03);
+        filter: blur(0);
+    }
+}
+
+@keyframes introTagline {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes introCrack {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(-11.5deg) scaleX(0.05);
+    }
+    30% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.85;
+        transform: translate(-50%, -50%) rotate(-11.5deg) scaleX(1);
+    }
+}
+
+@keyframes introCut {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(-11.5deg) scaleX(0.02);
+    }
+    18% {
+        opacity: 0.75;
+    }
+    62% {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) rotate(-11.5deg) scaleX(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(-11.5deg) scaleX(1.05);
+    }
+}
+
+@keyframes introTitleOut {
+    to {
+        opacity: 0;
+        transform: translateY(0) scale(1.08);
+        filter: blur(3px);
+    }
+}
+
+/* 两片朝相反方向走,再带一点旋转,边缘才像被撕开而不是平移 */
+@keyframes introLeft {
+    0% {
+        transform: translate(0, 0);
+    }
+    22% {
+        transform: translate(1.5%, -2.2%);
+    }
+    100% {
+        transform: translate(45%, -75%) rotate(-2deg);
+    }
+}
+
+@keyframes introRight {
+    0% {
+        transform: translate(0, 0);
+    }
+    22% {
+        transform: translate(-1.5%, 2.2%);
+    }
+    100% {
+        transform: translate(-45%, 75%) rotate(-2deg);
+    }
+}
+
+@keyframes introFade {
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+/* 关掉动画时直接别注入,别让用户看一块黑屏 */
+@media (prefers-reduced-motion: reduce) {
+    .home-intro {
+        display: none;
+    }
+}

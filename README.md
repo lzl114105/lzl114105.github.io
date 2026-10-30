@@ -2,16 +2,77 @@
 
 一个用 [Hugo](https://gohugo.io/) + [Stack](https://github.com/CaiJimmy/hugo-theme-stack) 搭的博客。
 
-## 先改这三处
+## 五分钟上手
 
-打开 `hugo.yaml`,把占位的改成你自己的:
+日常只有三件事:开着预览、写文章、推上去。
 
-```yaml
-baseURL: "https://YOURNAME.github.io/"   # 你的 GitHub 用户名
-title: "半山"                             # 站名
+```bash
+cd C:/Project/blog
+hugo server -D
 ```
 
-再改这两个地方:
+浏览器打开 http://localhost:1313 。`-D` 让草稿也渲染,这样新建的文章不用先改状态就能看见。改文件保存即刷新,停就按 `Ctrl+C`。
+
+**一次只开一个预览。** 端口被占说明已经有一个在跑,先用那个,或者 `Ctrl+C` 关掉重开,不要用 `--port 1314` 另起一个。两个实例长得一模一样,其实是两份独立的内存副本:文件变了,A 窗口重编译了 B 窗口未必,现象就是"明明改了却没生效",而你因为地址栏端口不同,还以为看的是同一个站。
+
+写一篇:
+
+```bash
+hugo new content post/hello-world/index.md
+```
+
+生成 `content/post/hello-world/index.md`,front matter 已经填好。文件夹名会被拿去当 `slug`(也就是网址),所以写英文;大标题在文件里改成中文。写完把 `draft: true` 改成 `false`,否则推上去线上也不会出现。
+
+发布:
+
+```bash
+git add -A && git commit -m "新文章" && git push
+```
+
+GitHub Actions 会自己构建部署,几十秒后线上可见。**前提是仓库 Settings → Pages 的 Source 选的是 `GitHub Actions`**;选成 `Deploy from a branch` 的话,push 上去什么都不会发生,也不报错,只是站点一直停在旧版本。
+
+## 地址和标题,是两个名字
+
+这是最容易卡住的地方。一篇文章有两个标识:
+
+```yaml
+title: "第一篇"     # 页面上印出来的大标题
+slug: "hello"       # 地址栏里那一段
+```
+
+配合 `hugo.yaml` 里的 `permalinks: post: "/p/:slug/"`,它最终落在 `/p/hello/`。所以打开 http://localhost:1313/p/hello/ ,看到的文章叫《第一篇》——页面上根本不会出现 "hello" 这个词。这不是丢文章,是它本来就这样。
+
+反过来也成立:想找某篇,按标题找(首页卡片、`/archives/`);想手敲地址,按 slug 敲。两者对不上是正常的。
+
+## 写了文章却看不到,按这个顺序查
+
+1. **front matter 里有没有 `build:` 块** —— 从别处拷来的模板常带着这个:
+
+   ```yaml
+   build:
+     render: never
+     list: never
+   ```
+
+   这是"别生成这个页面、也别列出来",优先级高于 `draft`,而且**不报错**。症状是文件明明在、`hugo` 也不报错、就是哪都没有。删掉整块即可。
+
+2. **`draft: true`** —— 本地带 `-D` 能看见,但 push 上线时草稿一律不发布。要发就改成 `false`。
+3. **文件位置** —— 必须是一个目录:`content/post/名字/index.md`。直接把 `.md` 扔进 `content/` 或 `content/post/` 根下,不会变成文章。
+4. **你看的是线上还是本地** —— 线上只认已 push 的提交。本地草稿、未推送的改动都不会出现。`git status` 有 `ahead` 就说明线上还是旧的。
+5. **首页只列最近 8 篇** —— `pagination.pagerSize: 8`。更早的文章不在首页,去 `/archives/`。
+
+五条都排除了还不显示,跑一次 `hugo --quiet`,报错会直接指到文件和行号。
+
+## 确认这些是你自己的
+
+`hugo.yaml` 里这几行现在是这样,确实是你自己的信息就不用动:
+
+```yaml
+baseURL: "https://lzl114105.github.io/"   # 仓库叫别的名字时,要写成 .../仓库名/
+title: "半山"
+```
+
+还想调的:
 
 - `params.sidebar.subtitle` —— 侧边栏那句副标题
 - `menu.social` 里的 `url` —— 换成你的 GitHub 主页
@@ -49,32 +110,69 @@ image: "cover.png"     # 图片放在文章同一目录
 
 不写 `image` 就用 `postFallback`;两个都没有,首页那张卡片就只显示文字。
 
-## 日常三件事
-
-**写新文章**
+## 写一篇的完整流程
 
 ```bash
-hugo new content post/文章名/index.md
+hugo new content post/2026-10-26-我的题目/index.md
 ```
 
-会生成 `content/post/文章名/index.md`,里面已经填好 front matter。`draft: true` 改成 `false` 才会发布。
+生成的文件长这样,每个字段都有用处:
 
-**本地预览**
+```yaml
+---
+title: "2026 10 26 我的题目"      # 站上显示的大标题,直接改成中文
+slug: "2026-10-26-我的题目"       # URL 用这个,所以别用中文
+description: ""                  # 首页卡片和搜索结果里的一句话摘要
+date: 2026-10-26T21:30:00+08:00
+image: ""                        # 封面,填同目录下的文件名
+categories: [随笔]                # 决定它归到首页哪个书架上
+tags: []                         # 自由打标签,不填也不影响
+draft: true                      # 改成 false 才发布
+---
+```
+
+正文从 `<!--more-->` 下面开始写。这行是摘要切点:它上面的内容会出现在首页卡片里,下面的要进文章才看得见,所以第一段别写"本文介绍……",直接给结论。
+
+图片有两种放法,都指向文章自己的目录:
+
+- 封面 —— 图片丢进文章目录,`image: "cover.png"`
+- 正文插图 —— 同样丢进文章目录,正文里写 `![](photo.jpg)`,相对路径就够了
+
+文章是"一个目录一篇"(`content/post/名字/index.md`),不是散装的 `.md`。这样图片跟着文章走,改名、复制、备份都不会散架。
+
+## 新建一个分类
+
+分类不是"建"出来的,是**文章写出来的**。front matter 里写一个新名字,`/categories/新名字/` 这个页面就存在了,首页「分册」也会自动多一张卡片——不用改任何配置,也不用先声明。
+
+想让这个分类像个正经栏目,再补一个文件:
 
 ```bash
-cd 到博客目录
-hugo server -D
+# 目录名 = 分类名,一字不差
+content/categories/读书/_index.md
 ```
 
-打开 http://localhost:1313 。`-D` 表示草稿也显示。改文件保存即刷新,不用重启。
-
-**发布**
-
-```bash
-git add -A && git commit -m "新文章" && git push
+```yaml
+---
+title: "读书"                              # 显示名,书架和分类页标题都用它
+slug: "reading"                           # 网址用这个
+description: "读过的、正在读的、读不下去的。"   # 书架上那行小字
+---
 ```
 
-推上去之后 GitHub Actions 自动构建发布,大概十几秒到一分钟。
+三个字段各管一件事。`slug` 尤其值得写:不写的话网址是 `/categories/%E8%AF%BB%E4%B9%A6/`,写了就是 `/categories/reading/`。
+
+配封面(可选):
+
+```yaml
+params:
+  images:
+    categories:
+      读书: "img/cat-read.png"    # 键名是分类名,不是 slug
+```
+
+图放 `assets/img/`。键名要和文章里 `categories:` 写的那串字一模一样,差一个字就取不到,然后静默退回渐变——不报错,但你会以为图没生效。
+
+删分类:把文章里那行删掉,它自己就消失;`_index.md` 留着不影响,清掉更干净。
 
 ## 目录结构
 
@@ -106,6 +204,33 @@ themes/hugo-theme-stack/  主题(直接放在仓库里,不依赖外网)
 | 标题字体 / 正文字体 | 同文件 `--font-serif` / `--font-body` |
 | 首页门头文案、文章流、分类书架的结构 | `layouts/home.html` |
 | 卡片圆角、阴影、间距 | `custom.css` 里的 `--radius` / `--shadow` / `--section-separation` |
+| 开场的文字 / 关掉开场 | `hugo.yaml` 的 `params.intro` |
+| 开场速度、斜切角度、辉光颜色 | `custom.css` 末尾「开场」那一段 |
+
+## 首页开场:一个字被切开
+
+进首页时先黑屏，中间浮出一个词，接着一道 -11.5° 的斜光把它划开，幕布顺着这道缝撕向两侧，露出页面。它由四层东西叠着演，时间轴错开：
+
+| 层 | 动作 | 起 |
+|---|---|---|
+| 幕布两片 | 用 `clip-path` 沿斜线各留一半，撕开时朝相反方向平移并旋转 | 1.95s |
+| 光刃 | 一条 150vmax 长的细线，从中心向两端扫出去 | 1.45s |
+| 切口 | 标题身上那条 1.55em 的亮线，扫过字身 | 1.2s |
+| 标题 | 从模糊里浮出、放大，再被淡出吃掉 | 0s |
+
+改文案和开关:
+
+```yaml
+params:
+  intro:
+    enable: true
+    text: "半山"      # 幕布中央那个词
+    tagline: ""       # 下面一行小字,留空不显示
+```
+
+三个约束,都是刻意的:**只在首页**播(文章页来回跳不打断阅读);**一个会话只播一次**,靠 `sessionStorage` 记标记,刷新不重播,关掉标签页重开才会再演一次;**系统开了「减少动态效果」就直接不注入**,不给这类用户塞黑屏。
+
+要调节奏就改 `custom.css` 里 `@keyframes introLeft/introRight` 的位移和 `intro*` 的 `animation-delay`,别去动 JS。
 
 ## 部署到 GitHub Pages 的完整步骤
 
